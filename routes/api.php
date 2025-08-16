@@ -16,7 +16,7 @@ Route::post('/otp/verify', [OtpController::class, 'verify']);
 
 Route::get('/subscriptions', [SubscriptionController::class, 'index']);
 
-Route::middleware(['auth:sanctum'])->group(function (){
+Route::middleware('api')->group(function (){
     Route::get('/me', [MeController::class, 'profile']);
 });
 
