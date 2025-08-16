@@ -26,7 +26,7 @@ class UserResource extends JsonResource
             'full_name' => $this->full_name,
             'email' => $this->email,
             'first_name' => $this->first_name,
-            'avatar_url' => config('app.domain') . '/storage/' . $this->avatar_url,
+            'avatar_url' => $this->avatar_url ? config('app.domain') . '/storage/' . $this->avatar_url : null,
             'role' => $this->role,
             'company' => CompanyResource::make($this->whenLoaded('company'))
         ];
