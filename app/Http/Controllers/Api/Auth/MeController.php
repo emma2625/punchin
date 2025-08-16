@@ -12,8 +12,9 @@ class MeController extends Controller
     {
         $user = $request->user();
 
+        // Ensure relationship exists in the model
         $user->load('company');
 
-        return UserResource::make($user);
+        return new UserResource($user);
     }
 }
