@@ -59,6 +59,7 @@ class SubscriptionPaymentController extends Controller
 
             $payment = $this->paystack->initializePayment($email, $amount, $callbackUrl, $metadata);
 
+            Log::debug($payment);
             if (!$payment || !$payment['status']) {
                 return response()->json([
                     'success' => false,
