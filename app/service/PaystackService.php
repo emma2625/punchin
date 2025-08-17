@@ -26,7 +26,7 @@ class PaystackService
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->secretKey,
             'Cache-Control' => 'no-cache',
-        ])->get("{$this->baseUrl}/transaction/verify/{$reference}");
+        ])->get("{$this->baseUrl}/verify/{$reference}");
 
         if ($response->successful()) {
             return $response->json();
