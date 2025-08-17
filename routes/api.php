@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\Api\Auth\LogoutController;
 use App\Http\Controllers\Api\Auth\MeController;
 use App\Http\Controllers\Api\Auth\OtpController;
 use App\Http\Controllers\Api\Auth\RegisterController;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/login', [LoginController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/logout', [LogoutController::class, 'logout']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/otp/resend', [OtpController::class, 'resend']);
 Route::post('/otp/verify', [OtpController::class, 'verify']);
@@ -24,7 +26,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/staff', [StaffController::class, 'getStaff']);
     Route::post('/staff', [StaffController::class, 'addStaff']);
-    Route::put('/staff/{staff}/branch', [StaffController::class, 'updateStaffBranch']); 
+    Route::put('/staff/{staff}/branch', [StaffController::class, 'updateStaffBranch']);
     Route::delete('/staff/{staff}', [StaffController::class, 'removeStaff']);
 
     Route::get('/branches', [BranchController::class, 'index']);
