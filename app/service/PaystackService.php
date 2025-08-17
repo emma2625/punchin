@@ -3,6 +3,7 @@
 namespace App\service;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PaystackService
 {
@@ -52,15 +53,28 @@ class PaystackService
             'metadata' => $metadata,
         ];
 
+        Log::debug('Paystack initialize payload', $payload);
+
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->secretKey,
             'Cache-Control' => 'no-cache',
+            'Content-Type' => 'application/json',
         ])->post("{$this->baseUrl}/transaction/initialize", $payload);
+
+        Log::debug('Paystack initialize raw response', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ]);
 
         if ($response->successful()) {
             return $response->json();
         }
 
-        return null;
+        return [
+            'status' => false,
+            'message' => 'Request failed',
+            'http_status' => $response->status(),
+            'body' => $response->body(),
+        ];
     }
 }
