@@ -11,6 +11,9 @@ use App\service\PaystackService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+use function Laravel\Prompts\error;
 
 class SubscriptionPaymentController extends Controller
 {
@@ -30,43 +33,52 @@ class SubscriptionPaymentController extends Controller
             'subscription_id' => 'required|exists:subscriptions,ulid',
         ]);
 
-        $user = $request->user();
-        $subscription = Subscription::fromUlid($request->subscription_id);
-        $company = $user->company;
+        try {
+            $user = $request->user();
+            $subscription = Subscription::fromUlid($request->subscription_id);
+            $company = $user->company;
 
-        if (!$company) {
+            if (!$company) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User does not belong to any company.'
+                ], 422);
+            }
+
+            // Initialize payment via Paystack
+            $amount = $subscription->price;
+            $email = $user->email;
+
+            $callbackUrl = route('subscriptions.verify'); // optional
+            $metadata = [
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'subscription_id' => $subscription->id,
+            ];
+
+
+            $payment = $this->paystack->initializePayment($email, $amount, $callbackUrl, $metadata);
+
+            if (!$payment || !$payment['status']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to initialize payment.'
+                ], 500);
+            }
+
             return response()->json([
-                'success' => false,
-                'message' => 'User does not belong to any company.'
-            ], 422);
-        }
-
-        // Initialize payment via Paystack
-        $amount = $subscription->price;
-        $email = $user->email;
-
-        $callbackUrl = route('subscriptions.verify'); // optional
-        $metadata = [
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'subscription_id' => $subscription->id,
-        ];
-
-        $payment = $this->paystack->initializePayment($email, $amount, $callbackUrl, $metadata);
-
-        if (!$payment || !$payment['status']) {
+                'success' => true,
+                'access_code' => $payment['data']['access_code'] ?? null,
+                'authorization_url' => $payment['data']['authorization_url'] ?? null,
+                'reference' => $payment['data']['reference'] ?? null,
+            ]);
+        } catch (\Throwable $th) {
+            Log::error('Error initializing Payment' . $th->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to initialize payment.'
             ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'access_code' => $payment['data']['access_code'] ?? null,
-            'authorization_url' => $payment['data']['authorization_url'] ?? null,
-            'reference' => $payment['data']['reference'] ?? null,
-        ]);
     }
 
 
@@ -90,6 +102,7 @@ class SubscriptionPaymentController extends Controller
                 'message' => 'User does not belong to any company.'
             ], 422);
         }
+
 
         // Verify payment via Paystack
         $payment = $this->paystack->verifyPayment($request->reference);
