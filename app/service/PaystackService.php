@@ -59,7 +59,7 @@ class PaystackService
             'Authorization' => 'Bearer ' . $this->secretKey,
             'Cache-Control' => 'no-cache',
             'Content-Type' => 'application/json',
-        ])->post("{$this->baseUrl}/transaction/initialize", $payload);
+        ])->post("{$this->baseUrl}/initialize", $payload);
 
         Log::debug('Paystack initialize raw response', [
             'status' => $response->status(),
