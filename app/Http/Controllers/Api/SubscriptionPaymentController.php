@@ -56,18 +56,18 @@ class SubscriptionPaymentController extends Controller
             'subscription_id' => $subscription->id,
         ];
 
-        Log::debug('Initializing Paystack payment', [
-            'email' => $email,
-            'amount' => $amount,
-            'callback_url' => $callbackUrl,
-            'metadata' => $metadata,
-        ]);
+        // Log::debug('Initializing Paystack payment', [
+        //     'email' => $email,
+        //     'amount' => $amount,
+        //     'callback_url' => $callbackUrl,
+        //     'metadata' => $metadata,
+        // ]);
 
         $payment = $this->paystack->initializePayment($email, $amount, $callbackUrl, $metadata);
 
-        Log::debug('Paystack initialize response', [
-            'response' => $payment,
-        ]);
+        // Log::debug('Paystack initialize response', [
+        //     'response' => $payment,
+        // ]);
 
         if (!$payment || !isset($payment['status']) || !$payment['status']) {
             Log::error('Paystack initialization failed', [

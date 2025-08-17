@@ -53,7 +53,7 @@ class PaystackService
             'metadata' => $metadata,
         ];
 
-        Log::debug('Paystack initialize payload', $payload);
+        // Log::debug('Paystack initialize payload', $payload);
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->secretKey,
@@ -61,11 +61,11 @@ class PaystackService
             'Content-Type' => 'application/json',
         ])->post("{$this->baseUrl}/initialize", $payload);
 
-        Log::debug('Paystack initialize raw response', [
-            'status' => $response->status(),
-            'body' => $response->body(),
-            'base' => $this->baseUrl,
-        ]);
+        // Log::debug('Paystack initialize raw response', [
+        //     'status' => $response->status(),
+        //     'body' => $response->body(),
+        //     'base' => $this->baseUrl,
+        // ]);
 
         if ($response->successful()) {
             return $response->json();
