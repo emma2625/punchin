@@ -27,74 +27,74 @@ class SubscriptionPaymentController extends Controller
     /**
      * Initialize a subscription payment
      */
-  public function initialize(Request $request)
-{
-    $request->validate([
-        'subscription_id' => 'required|exists:subscriptions,ulid',
-    ]);
+    public function initialize(Request $request)
+    {
+        $request->validate([
+            'subscription_id' => 'required|exists:subscriptions,ulid',
+        ]);
 
-    try {
-        $user = $request->user();
-        $subscription = Subscription::fromUlid($request->subscription_id);
-        $company = $user->company;
+        try {
+            $user = $request->user();
+            $subscription = Subscription::fromUlid($request->subscription_id);
+            $company = $user->company;
 
-        if (!$company) {
-            Log::warning("User {$user->id} does not belong to any company.");
+            if (!$company) {
+                Log::warning("User {$user->id} does not belong to any company.");
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User does not belong to any company.'
+                ], 422);
+            }
+
+            // Initialize payment via Paystack
+            $amount = $subscription->price;
+            $email = $user->email;
+            $callbackUrl = route('subscriptions.verify'); // optional
+            $metadata = [
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'subscription_id' => $subscription->id,
+            ];
+
+            // Log::debug('Initializing Paystack payment', [
+            //     'email' => $email,
+            //     'amount' => $amount,
+            //     'callback_url' => $callbackUrl,
+            //     'metadata' => $metadata,
+            // ]);
+
+            $payment = $this->paystack->initializePayment($email, $amount, $callbackUrl, $metadata);
+
+            // Log::debug('Paystack initialize response', [
+            //     'response' => $payment,
+            // ]);
+
+            if (!$payment || !isset($payment['status']) || !$payment['status']) {
+                Log::error('Paystack initialization failed', [
+                    'payment_response' => $payment
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to initialize payment.'
+                ], 500);
+            }
+
             return response()->json([
-                'success' => false,
-                'message' => 'User does not belong to any company.'
-            ], 422);
-        }
-
-        // Initialize payment via Paystack
-        $amount = $subscription->price;
-        $email = $user->email;
-        $callbackUrl = route('subscriptions.verify'); // optional
-        $metadata = [
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'subscription_id' => $subscription->id,
-        ];
-
-        // Log::debug('Initializing Paystack payment', [
-        //     'email' => $email,
-        //     'amount' => $amount,
-        //     'callback_url' => $callbackUrl,
-        //     'metadata' => $metadata,
-        // ]);
-
-        $payment = $this->paystack->initializePayment($email, $amount, $callbackUrl, $metadata);
-
-        // Log::debug('Paystack initialize response', [
-        //     'response' => $payment,
-        // ]);
-
-        if (!$payment || !isset($payment['status']) || !$payment['status']) {
-            Log::error('Paystack initialization failed', [
-                'payment_response' => $payment
+                'success' => true,
+                'access_code' => $payment['data']['access_code'] ?? null,
+                'authorization_url' => $payment['data']['authorization_url'] ?? null,
+                'reference' => $payment['data']['reference'] ?? null,
+            ]);
+        } catch (\Throwable $th) {
+            Log::error('Error initializing payment: ' . $th->getMessage(), [
+                'stack' => $th->getTraceAsString()
             ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to initialize payment.'
+                'message' => 'Sorry, failed to initialize payment.',
             ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'access_code' => $payment['data']['access_code'] ?? null,
-            'authorization_url' => $payment['data']['authorization_url'] ?? null,
-            'reference' => $payment['data']['reference'] ?? null,
-        ]);
-    } catch (\Throwable $th) {
-        Log::error('Error initializing payment: ' . $th->getMessage(), [
-            'stack' => $th->getTraceAsString()
-        ]);
-        return response()->json([
-            'success' => false,
-            'message' => 'Sorry, failed to initialize payment.',
-        ], 500);
     }
-}
 
 
     /**
@@ -111,18 +111,27 @@ class SubscriptionPaymentController extends Controller
         $subscription = Subscription::fromUlid($request->subscription_id);
         $company = $user->company;
 
+        Log::debug('Verifying subscription payment', [
+            'user_id' => $user->id ?? null,
+            'subscription_id' => $request->subscription_id,
+            'company_id' => $company->id ?? null,
+            'reference' => $request->reference,
+        ]);
+
         if (!$company) {
+            Log::debug('User has no company assigned', ['user_id' => $user->id]);
             return response()->json([
                 'success' => false,
                 'message' => 'User does not belong to any company.'
             ], 422);
         }
 
-
         // Verify payment via Paystack
         $payment = $this->paystack->verifyPayment($request->reference);
+        Log::debug('Paystack payment verification response', ['payment' => $payment]);
 
         if (!$payment || !isset($payment['status']) || $payment['status'] !== 'success') {
+            Log::debug('Payment verification failed', ['payment' => $payment]);
             return response()->json([
                 'success' => false,
                 'message' => 'Payment verification failed.'
@@ -143,6 +152,7 @@ class SubscriptionPaymentController extends Controller
                 'payment_gateway' => 'paystack',
                 'meta' => $payment,
             ]);
+            Log::debug('Transaction created successfully', ['transaction_id' => $transaction->id]);
 
             $companySubscription = CompanySubscription::updateOrCreate(
                 [
@@ -155,6 +165,7 @@ class SubscriptionPaymentController extends Controller
                     'status' => SubscriptionStatus::ACTIVE,
                 ]
             );
+            Log::debug('Company subscription updated/created', ['company_subscription_id' => $companySubscription->id]);
 
             DB::commit();
 
@@ -166,6 +177,7 @@ class SubscriptionPaymentController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Payment verification exception', ['exception' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Payment verification failed: ' . $e->getMessage()
