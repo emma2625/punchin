@@ -20,7 +20,10 @@ Route::get('/subscriptions', [SubscriptionController::class, 'index']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/me', [MeController::class, 'profile']);
-    Route::post('/add-staff', [StaffController::class, 'addStaff']);
+
+    Route::get('/staff', [StaffController::class, 'getStaff']);
+    Route::post('/staff', [StaffController::class, 'addStaff']);
+    Route::delete('/staff/{staff}', [StaffController::class, 'removeStaff']);
 
     Route::prefix('subscriptions')->controller(SubscriptionPaymentController::class)->group(function(){
         Route::post('/initialize', 'initialize');
