@@ -3,6 +3,7 @@
 namespace App\service;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PaystackService
 {
@@ -51,17 +52,20 @@ class PaystackService
             'callback_url' => $callbackUrl,
             'metadata' => $metadata,
         ];
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->secretKey,
+                'Cache-Control' => 'no-cache',
+                'Content-Type' => 'application/json',
+            ])->post("{$this->baseUrl}/transaction/initialize", $payload);
+            if ($response->successful()) {
+                return $response->json();
+            }
+            return null;
+        } catch (\Throwable $th) {
+            Log::error('Failed to initialize: ' . $th->getMessage());
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->secretKey,
-            'Cache-Control' => 'no-cache',
-            'Content-Type' => 'application/json',
-        ])->post("{$this->baseUrl}/transaction/initialize", $payload);
-
-        if ($response->successful()) {
-            return $response->json();
+            return null;
         }
-
-        return null;
     }
 }
