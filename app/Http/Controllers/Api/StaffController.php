@@ -154,7 +154,7 @@ class StaffController extends Controller
 
         // If staff belongs only to this company → delete
         if ($staff->companies()->count() === 1) {
-            $staff->delete();
+            $staff->forceDelete();
             return response()->json(['message' => 'Staff account deleted successfully.'], 200);
         }
 
