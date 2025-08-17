@@ -19,9 +19,6 @@ class PaystackService
 
     /**
      * Verify a payment using the transaction reference.
-     *
-     * @param string $reference
-     * @return array|null
      */
     public function verifyPayment(string $reference): ?array
     {
@@ -29,6 +26,37 @@ class PaystackService
             'Authorization' => 'Bearer ' . $this->secretKey,
             'Cache-Control' => 'no-cache',
         ])->get("{$this->baseUrl}/transaction/verify/{$reference}");
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
+    /**
+     * Initialize a payment with Paystack.
+     *
+     * @param string $email
+     * @param int $amount Amount in Naira
+     * @param string|null $callbackUrl
+     * @param array $metadata
+     * @return array|null
+     */
+    public function initializePayment(string $email, int $amount, ?string $callbackUrl = null, array $metadata = []): ?array
+    {
+        $payload = [
+            'email' => $email,
+            'amount' => $amount * 100, // Paystack expects amount in kobo
+            'callback_url' => $callbackUrl,
+            'metadata' => $metadata,
+        ];
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->secretKey,
+            'Cache-Control' => 'no-cache',
+            'Content-Type' => 'application/json',
+        ])->post("{$this->baseUrl}/transaction/initialize", $payload);
 
         if ($response->successful()) {
             return $response->json();

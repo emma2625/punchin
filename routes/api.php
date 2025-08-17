@@ -21,7 +21,11 @@ Route::get('/subscriptions', [SubscriptionController::class, 'index']);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/me', [MeController::class, 'profile']);
     Route::post('/add-staff', [StaffController::class, 'addStaff']);
-    Route::post('/subscriptions/verify', [SubscriptionPaymentController::class, 'verify']);
+
+    Route::prefix('subscriptions')->controller(SubscriptionPaymentController::class)->group(function(){
+        Route::post('/initialize', 'initialize');
+        Route::post('/verify', 'verify')->name('subscriptions.verify');
+    });
 });
 
 Route::fallback(static fn () => response()->json(status: 404));

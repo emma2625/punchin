@@ -9,7 +9,6 @@ use App\Models\Transaction;
 use App\Models\Subscription;
 use App\service\PaystackService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -22,6 +21,58 @@ class SubscriptionPaymentController extends Controller
         $this->paystack = $paystack;
     }
 
+    /**
+     * Initialize a subscription payment
+     */
+    public function initialize(Request $request)
+    {
+        $request->validate([
+            'subscription_id' => 'required|exists:subscriptions,id',
+        ]);
+
+        $user = $request->user();
+        $subscription = Subscription::fromUlid($request->subscription_id);
+        $company = $user->company;
+
+        if (!$company) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User does not belong to any company.'
+            ], 422);
+        }
+
+        // Initialize payment via Paystack
+        $amount = $subscription->price; 
+        $email = $user->email;
+
+        $callbackUrl = route('subscriptions.verify'); // optional
+        $metadata = [
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'subscription_id' => $subscription->id,
+        ];
+
+        $payment = $this->paystack->initializePayment($email, $amount, $callbackUrl, $metadata);
+
+        if (!$payment || !$payment['status']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to initialize payment.'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'access_code' => $payment['data']['access_code'] ?? null,
+            'authorization_url' => $payment['data']['authorization_url'] ?? null,
+            'reference' => $payment['data']['reference'] ?? null,
+        ]);
+    }
+
+
+    /**
+     * Verify subscription payment
+     */
     public function verify(Request $request)
     {
         $request->validate([
@@ -50,7 +101,6 @@ class SubscriptionPaymentController extends Controller
             ], 422);
         }
 
-        // Store transaction
         $now = now();
         DB::beginTransaction();
         try {
