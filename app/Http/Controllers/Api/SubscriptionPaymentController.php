@@ -130,7 +130,11 @@ class SubscriptionPaymentController extends Controller
         $payment = $this->paystack->verifyPayment($request->reference);
         Log::debug('Paystack payment verification response', ['payment' => $payment]);
 
-        if (!$payment || !isset($payment['status']) || $payment['status'] !== 'success') {
+        if (
+            !$payment ||
+            !isset($payment['data']['status']) ||
+            $payment['data']['status'] !== 'success'
+        ) {
             Log::debug('Payment verification failed', ['payment' => $payment]);
             return response()->json([
                 'success' => false,
