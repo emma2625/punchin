@@ -29,7 +29,12 @@ class StaffController extends Controller
             return response()->json(['message' => 'You do not belong to any company.'], 404);
         }
 
-        $staff = $company->staff()->with('branches')->latest()->paginate(20);
+        $staff = $company->staff()
+            ->with(['branches' => function ($query) use ($company) {
+                $query->where('company_id', $company->id);
+            }])
+            ->latest()
+            ->paginate(20);
 
         return UserResource::collection($staff)->response();
     }
