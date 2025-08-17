@@ -28,7 +28,8 @@ class UserResource extends JsonResource
             'first_name' => $this->first_name,
             'avatar_url' => $this->avatar_url ? config('app.domain') . '/storage/' . $this->avatar_url : null,
             'role' => $this->role,
-            'company' => CompanyResource::make($this->whenLoaded('company'))
+            'company' => CompanyResource::make($this->whenLoaded('company')),
+            'branches' => BranchResource::collection($this->whenLoaded('branches')),
         ];
     }
 }
