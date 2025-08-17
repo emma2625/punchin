@@ -15,7 +15,7 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
 
-        if (!$request->user() || is_null($this->resource)) {
+        if (is_null($this->resource)) {
             return [];
         }
 
