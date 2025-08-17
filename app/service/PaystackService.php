@@ -64,6 +64,7 @@ class PaystackService
         Log::debug('Paystack initialize raw response', [
             'status' => $response->status(),
             'body' => $response->body(),
+            'base' => $this->baseUrl,
         ]);
 
         if ($response->successful()) {
