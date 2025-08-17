@@ -144,6 +144,7 @@ class SubscriptionPaymentController extends Controller
 
         $now = now();
         DB::beginTransaction();
+        $payment = $payment['data'];
         try {
             $transaction = Transaction::create([
                 'company_id' => $company->id,
