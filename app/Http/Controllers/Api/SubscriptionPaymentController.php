@@ -77,7 +77,7 @@ class SubscriptionPaymentController extends Controller
             Log::error('Error initializing Payment' . $th->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to initialize payment.'
+                'message' => 'Sorry, Failed to initialize payment .'
             ], 500);
         }
     }
