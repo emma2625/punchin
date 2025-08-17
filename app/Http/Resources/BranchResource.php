@@ -25,6 +25,7 @@ class BranchResource extends JsonResource
             'company' => CompanyResource::make($this->whenLoaded('company')),
             'staff_count' => $this->whenLoaded('staff', fn() => $this->staff->count()),
             'staff' => UserResource::collection($this->whenLoaded('staff')),
+            'created_at' => $this->created_at,
         ];
     }
 }
