@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CompanyResource extends JsonResource
+class BranchResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -21,21 +21,10 @@ class CompanyResource extends JsonResource
         return [
             'id' => $this->ulid,
             'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'admin' => UserResource::make($this->whenLoaded('admin')),
-
+            'location' => $this->location,
+            'company' => CompanyResource::make($this->whenLoaded('company')),
             'staff_count' => $this->whenLoaded('staff', fn() => $this->staff->count()),
             'staff' => UserResource::collection($this->whenLoaded('staff')),
-            'branches' => BranchResource::collection($this->whenLoaded('branches')),
-
-            'subscriptions' => $this->whenLoaded('subscriptions', fn() =>
-                CompanySubscriptionResource::collection($this->subscriptions)
-            ),
-
-            'active_subscription' => $this->whenLoaded('activeSubscription', fn() =>
-                CompanySubscriptionResource::make($this->activeSubscription)
-            ),
         ];
     }
 }

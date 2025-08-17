@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\MeController;
 use App\Http\Controllers\Api\Auth\OtpController;
 use App\Http\Controllers\Api\Auth\RegisterController;
+use App\Http\Controllers\Api\BranchController;
 use App\Http\Controllers\Api\StaffController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\SubscriptionPaymentController;
@@ -25,10 +26,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/staff', [StaffController::class, 'addStaff']);
     Route::delete('/staff/{staff}', [StaffController::class, 'removeStaff']);
 
-    Route::prefix('subscriptions')->controller(SubscriptionPaymentController::class)->group(function(){
+    Route::get('/branches', [BranchController::class, 'index']);
+    Route::post('/branches', [BranchController::class, 'store']);
+    Route::put('/branches/{branch}', [BranchController::class, 'update']);
+    Route::delete('/branches/{branch}', [BranchController::class, 'destroy']);
+
+    Route::prefix('subscriptions')->controller(SubscriptionPaymentController::class)->group(function () {
         Route::post('/initialize', 'initialize');
         Route::post('/verify', 'verify')->name('subscriptions.verify');
     });
 });
 
-Route::fallback(static fn () => response()->json(status: 404));
+Route::fallback(static fn() => response()->json(status: 404));

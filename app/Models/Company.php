@@ -41,6 +41,11 @@ class Company extends BaseModel
             ->where('role', 'staff');
     }
 
+    public function branches()
+    {
+        return $this->hasMany(Branch::class);
+    }
+
     /**
      * Company has many subscriptions (historical and current).
      */

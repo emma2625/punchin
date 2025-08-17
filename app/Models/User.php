@@ -114,4 +114,10 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->belongsToMany(Company::class, 'company_user', 'user_id', 'company_id')
             ->withTimestamps();
     }
+
+    public function branches()
+    {
+        return $this->belongsToMany(Branch::class, 'branch_user', 'user_id', 'branch_id')
+            ->withTimestamps();
+    }
 }
