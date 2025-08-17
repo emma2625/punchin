@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Notifications\StaffAccountCreated;
+use Illuminate\Support\Facades\Log;
 
 class StaffController extends Controller
 {
@@ -144,24 +145,50 @@ class StaffController extends Controller
         $user = $request->user();
         $company = $user->company()->first();
 
-        $staff = User::fromUlid($staff);
+        Log::info('RemoveStaff called', [
+            'user_id' => $user->id,
+            'company_id' => $company?->id,
+            'staff_ulid' => $staff,
+        ]);
 
+        // Retrieve the staff by ULID
+        try {
+            $staff = User::fromUlid($staff);
+            Log::info('Staff found', [
+                'staff_id' => $staff->id,
+                'staff_email' => $staff->email,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Staff not found', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Staff not found.'], 404);
+        }
+
+        // Authorization check
         if ($user->role !== UserRole::ADMIN) {
+            Log::warning('Unauthorized attempt to remove staff', ['user_id' => $user->id]);
             return response()->json(['message' => 'Unauthorized. Only admins can remove staff.'], 403);
         }
 
-        if (!$company->staff()->where('users.id', $staff->id)->exists()) {
+        // Check if staff belongs to this company
+        $isAttached = $company->staff()->where('users.id', $staff->id)->exists();
+        Log::info('Staff attached check', ['is_attached' => $isAttached]);
+
+        if (!$isAttached) {
             return response()->json(['message' => 'This staff is not part of your company.'], 422);
         }
 
-        // If staff belongs only to this company → delete
-        if ($staff->companies()->count() === 1) {
+        // Decide whether to delete or detach
+        $companyCount = $staff->companies()->count();
+        Log::info('Staff company count', ['company_count' => $companyCount]);
+
+        if ($companyCount === 1) {
             $staff->forceDelete();
+            Log::info('Staff deleted permanently', ['staff_id' => $staff->id]);
             return response()->json(['message' => 'Staff account deleted successfully.'], 200);
         }
 
-        // Otherwise just detach
         $company->staff()->detach($staff->id);
+        Log::info('Staff detached from company', ['staff_id' => $staff->id, 'company_id' => $company->id]);
 
         return response()->json(['message' => 'Staff removed from your company successfully.'], 200);
     }
