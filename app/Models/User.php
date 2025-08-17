@@ -106,5 +106,12 @@ class User extends Authenticatable implements FilamentUser, HasName
     //     return $this->hasMany(StaffClockIn::class);
     // }
 
-
+    /**
+     * Companies the user belongs to (many-to-many)
+     */
+    public function companies()
+    {
+        return $this->belongsToMany(Company::class, 'company_user', 'user_id', 'company_id')
+            ->withTimestamps();
+    }
 }

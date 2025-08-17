@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SubscriptionStatus;
 use App\Models\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,12 +32,33 @@ class Company extends BaseModel
     }
 
     /**
-     * Company has many staff users.
+     * Users (staff) belonging to this company via pivot table.
      */
-    public function staff(): HasMany
+    public function staff()
     {
-        return $this->hasMany(User::class)->where('role', 'staff');
+        return $this->belongsToMany(User::class, 'company_user', 'company_id', 'user_id')
+            ->withTimestamps()
+            ->where('role', 'staff');
     }
+
+    /**
+     * Company has many subscriptions (historical and current).
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(CompanySubscription::class);
+    }
+
+    /**
+     * Optionally, get the current active subscription.
+     */
+    public function activeSubscription()
+    {
+        return $this->hasOne(CompanySubscription::class)
+            ->where('status', SubscriptionStatus::ACTIVE)
+            ->latest('start_date');
+    }
+
 
     /**
      * Company has many clock-ins through staff.

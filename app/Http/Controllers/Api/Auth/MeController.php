@@ -12,8 +12,11 @@ class MeController extends Controller
     {
         $user = $request->user();
 
-        // Ensure relationship exists in the model
-        $user->load('company');
+        // Ensure relationship exists in the model  
+        $user->load([
+            'company',
+            'company.activeSubscription',
+        ]);
 
         return new UserResource($user);
     }

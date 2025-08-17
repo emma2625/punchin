@@ -16,4 +16,12 @@ abstract class BaseModel extends Model
     {
         return 'ulid';
     }
+
+    /**
+     * Retrieve a model instance by its ULID or fail.
+     */
+    public static function fromUlid(string $ulid)
+    {
+        return static::where('ulid', $ulid)->firstOrFail();
+    }
 }
