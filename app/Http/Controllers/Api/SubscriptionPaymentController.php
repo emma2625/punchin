@@ -27,7 +27,7 @@ class SubscriptionPaymentController extends Controller
     public function initialize(Request $request)
     {
         $request->validate([
-            'subscription_id' => 'required|exists:subscriptions,id',
+            'subscription_id' => 'required|exists:subscriptions,ulid',
         ]);
 
         $user = $request->user();
@@ -42,7 +42,7 @@ class SubscriptionPaymentController extends Controller
         }
 
         // Initialize payment via Paystack
-        $amount = $subscription->price; 
+        $amount = $subscription->price;
         $email = $user->email;
 
         $callbackUrl = route('subscriptions.verify'); // optional
@@ -77,7 +77,7 @@ class SubscriptionPaymentController extends Controller
     {
         $request->validate([
             'reference' => 'required|string',
-            'subscription_id' => 'required|exists:subscriptions,id',
+            'subscription_id' => 'required|exists:subscriptions,ulid',
         ]);
 
         $user = Auth::user();
