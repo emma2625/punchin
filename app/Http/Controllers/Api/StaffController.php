@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -30,11 +31,10 @@ class StaffController extends Controller
             ], 404);
         }
 
-        $staff = $company->staff()->get();
+        // Paginate and load relationships if needed
+        $staff = $company->staff()->latest()->paginate(20);
 
-        return response()->json([
-            'data' => $staff,
-        ], 200);
+        return UserResource::collection($staff)->response();
     }
 
     // Add a new staff or attach existing staff
@@ -80,7 +80,7 @@ class StaffController extends Controller
 
             return response()->json([
                 'message' => 'The staff account already exists and has been successfully linked to your company.',
-                'staff'   => $staff,
+                'staff'   => new UserResource($staff),
             ], 200);
         }
 
@@ -100,7 +100,7 @@ class StaffController extends Controller
 
         return response()->json([
             'message' => 'New staff account created and attached successfully.',
-            'staff'   => $staff,
+            'staff'   => new UserResource($staff),
         ], 201);
     }
 
