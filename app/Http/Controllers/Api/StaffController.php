@@ -139,10 +139,12 @@ class StaffController extends Controller
     }
 
     // Remove a staff from the company
-    public function removeStaff(Request $request, User $staff)
+    public function removeStaff(Request $request, $staff)
     {
         $user = $request->user();
         $company = $user->company()->first();
+
+        $staff = User::fromUlid($staff);
 
         if ($user->role !== UserRole::ADMIN) {
             return response()->json(['message' => 'Unauthorized. Only admins can remove staff.'], 403);
