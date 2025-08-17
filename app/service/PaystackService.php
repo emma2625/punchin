@@ -55,7 +55,6 @@ class PaystackService
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->secretKey,
             'Cache-Control' => 'no-cache',
-            'Content-Type' => 'application/json',
         ])->post("{$this->baseUrl}/transaction/initialize", $payload);
 
         if ($response->successful()) {
