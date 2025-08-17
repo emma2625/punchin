@@ -24,6 +24,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/staff', [StaffController::class, 'getStaff']);
     Route::post('/staff', [StaffController::class, 'addStaff']);
+    Route::put('/staff/{staff}/branch', [StaffController::class, 'updateStaffBranch']); 
     Route::delete('/staff/{staff}', [StaffController::class, 'removeStaff']);
 
     Route::get('/branches', [BranchController::class, 'index']);
