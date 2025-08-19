@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
 {
     /**
      * Update authenticated user profile.
-     * Only allows first_name and last_name to be updated.
+     * Allows first_name, last_name, and avatar_url to be updated.
      */
     public function updateUserProfile(Request $request)
     {
@@ -19,6 +20,7 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
+            'avatar' => 'nullable|file|image|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -28,13 +30,35 @@ class ProfileController extends Controller
             ], 422);
         }
 
-        $user->update($validator->validated());
+        $data = $validator->validated();
+        $oldAvatarPath = null;
+
+        // Handle avatar upload if present
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $path = $file->store('avatars', 'public'); // uses hashName automatically
+            $data['avatar_url'] = $path; // store just the path without 'storage/'
+
+            // store old avatar path to delete later
+            if ($user->avatar_url) {
+                $oldAvatarPath = $user->avatar_url;
+            }
+        }
+
+        // Update user
+        $user->update($data);
+
+        // Delete old avatar after successful update
+        if ($oldAvatarPath && Storage::disk('public')->exists($oldAvatarPath)) {
+            Storage::disk('public')->delete($oldAvatarPath);
+        }
 
         return response()->json([
             'success' => true,
             'data' => $user->fresh(),
         ]);
     }
+
 
     /**
      * Update company profile.
