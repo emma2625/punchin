@@ -17,7 +17,10 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::with(['company', 'company.activeSubscription'])
+            ->where('email', $request->email)
+            ->first();
+
         // dd($user);
 
         if (!$user || !Hash::check($request->password, $user->password)) {
