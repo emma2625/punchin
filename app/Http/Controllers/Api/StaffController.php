@@ -79,6 +79,8 @@ class StaffController extends Controller
                 $branch?->staff()->attach($staff->id);
             }
 
+            $staff->notify(new StaffAccountCreated());
+
             return response()->json([
                 'message' => 'The staff account already exists and has been successfully linked to your company.',
                 'staff' => new UserResource($staff),

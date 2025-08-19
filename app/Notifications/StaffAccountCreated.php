@@ -13,7 +13,7 @@ class StaffAccountCreated extends Notification implements ShouldQueue
 
     protected string $password;
 
-    public function __construct(string $password)
+    public function __construct($password = null)
     {
         $this->password = $password;
     }
@@ -25,6 +25,14 @@ class StaffAccountCreated extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        if (!$this->password) {
+            return (new MailMessage)
+                ->subject('Your New Staff Account')
+                ->greeting('Hello ' . $notifiable->first_name . ',')
+                ->line('Your staff account has been created.')
+                ->line('You can login with the to view the account:');
+        }
+
         return (new MailMessage)
             ->subject('Your New Staff Account')
             ->greeting('Hello ' . $notifiable->first_name . ',')
