@@ -11,7 +11,7 @@ class StaffAccountCreated extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected string $password;
+    protected string|null $password;
 
     public function __construct($password = null)
     {
