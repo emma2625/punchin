@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\MeController;
 use App\Http\Controllers\Api\Auth\OtpController;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\BranchController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\StaffController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\SubscriptionPaymentController;
@@ -23,6 +24,7 @@ Route::get('/subscriptions', [SubscriptionController::class, 'index']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/me', [MeController::class, 'profile']);
+    Route::get('/dashboard-stats', [DashboardController::class, 'getStats']);
 
     Route::get('/staff', [StaffController::class, 'getStaff']);
     Route::post('/staff', [StaffController::class, 'addStaff']);
