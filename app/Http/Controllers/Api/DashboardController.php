@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ class DashboardController extends Controller
         $user = $request->user();
 
         // Check if the user is admin
-        if ($user && $user->role === 'admin') {
+        if ($user && $user->role != UserRole::STAFF) {
             $totalStaff = User::count();
 
             return response()->json([
