@@ -22,7 +22,7 @@ class DashboardController extends Controller
                     'staff' => [
                         'label' => 'Total Staff',
                         'value' => $totalStaff,
-                        'icon' => 'badge-account',
+                        'icon' => 'people',
                         'color' => '#3B82F6',
                         'change' => '+2',
                         'changeType' => 'increase',
