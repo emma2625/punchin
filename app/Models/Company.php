@@ -23,6 +23,7 @@ class Company extends BaseModel
         'admin_id',
     ];
 
+    protected $with = ['activeSubscription'];
     /**
      * Company belongs to an admin.
      */

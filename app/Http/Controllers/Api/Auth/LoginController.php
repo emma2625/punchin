@@ -17,7 +17,7 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::with(['company', 'company.activeSubscription'])
+        $user = User::with(['company'])
             ->where('email', $request->email)
             ->first();
 

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\Api\Auth\LoginController as APILogin;
 use App\Http\Controllers\Api\Auth\LogoutController as CustomLogout;
 use App\Http\Controllers\Api\Auth\MeController;
 use App\Http\Controllers\Api\Auth\OtpController;
@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [APILogin::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [CustomLogout::class, 'logout']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/otp/resend', [OtpController::class, 'resend']);
