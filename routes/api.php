@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Auth\LoginController as APILogin;
 use App\Http\Controllers\Api\Auth\LogoutController as CustomLogout;
 use App\Http\Controllers\Api\Auth\MeController;
 use App\Http\Controllers\Api\Auth\OtpController;
+use App\Http\Controllers\Api\Auth\ProfileController as AuthProfileController;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\BranchController;
 use App\Http\Controllers\Api\DashboardController;
@@ -25,6 +26,9 @@ Route::get('/subscriptions', [SubscriptionController::class, 'index']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/me', [MeController::class, 'profile']);
+    Route::patch('/profile/password', [AuthProfileController::class, 'updatePassword']);
+
+
     Route::get('/dashboard-stats', [DashboardController::class, 'getStats']);
 
     Route::patch('/profile', [ProfileController::class, 'updateUserProfile']);
