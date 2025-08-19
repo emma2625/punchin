@@ -17,10 +17,7 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::with(['company'])
-            ->where('email', $request->email)
-            ->first();
-
+        $user = User::where('email', $request->email)->first();
         // dd($user);
 
         if (!$user || !Hash::check($request->password, $user->password)) {
@@ -40,11 +37,6 @@ class LoginController extends Controller
 
         // Create token
         $token = $user->createToken('auth_token')->plainTextToken;
-
-        $user->load([
-            'company',
-            'company.activeSubscription',
-        ]);
 
         return response()->json([
             'success' => true,

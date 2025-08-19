@@ -34,6 +34,8 @@ class User extends Authenticatable implements FilamentUser, HasName
         });
     }
 
+    protected $with = ['company'];
+
     /**
      * The attributes that are mass assignable.
      *
