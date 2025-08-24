@@ -43,10 +43,10 @@ class SubscriptionResource extends Resource
                     ->numeric()
                     ->prefix('₦'),
                 TextInput::make('staff_limit')
-                    ->required()
                     ->numeric(),
                 TextInput::make('duration_days')
                     ->required()
+                    ->default(30)
                     ->numeric(),
                 Textarea::make('description')
                     ->columnSpanFull(),
@@ -90,6 +90,7 @@ class SubscriptionResource extends Resource
                     ->formatStateUsing(fn($state) => '₦' . number_format($state))
                     ->sortable(),
                 TextColumn::make('staff_limit')
+                    ->formatStateUsing(fn($state) => $state == 0 || $state >= 10000 ? '∞' : $state)
                     ->sortable(),
                 TextColumn::make('creator.full_name')
                     ->label('Created By')
