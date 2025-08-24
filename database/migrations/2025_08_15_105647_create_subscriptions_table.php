@@ -16,7 +16,7 @@ return new class extends Migration
             $table->ulid();
             $table->string('name');
             $table->decimal('price', 10, 2);
-            $table->integer('duration_days');
+            $table->integer('duration_days')->default(1);
             $table->text('description')->nullable();
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->softDeletes();
