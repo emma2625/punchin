@@ -45,7 +45,7 @@ class RegisterController extends Controller
                 'password' => Hash::make($userData['password']),
                 'company_id' => $company->id,
                 'email_verified_at' => null,
-                'avatar_uri' => $path,
+                'avatar_url' => $path,
                 'role' => UserRole::ADMIN,
             ]);
 
