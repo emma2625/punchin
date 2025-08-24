@@ -27,6 +27,8 @@ class CompanySubscription extends BaseModel
         'status' => SubscriptionStatus::class,
     ];
 
+
+    protected $with = ['subscription'];
     /**
      * The company that owns this subscription.
      */

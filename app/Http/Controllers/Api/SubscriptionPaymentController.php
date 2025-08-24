@@ -124,13 +124,13 @@ class SubscriptionPaymentController extends Controller
         $subscription = Subscription::fromUlid($request->subscription_id);
         $company = $user->company;
 
-        Log::debug('Verifying subscription payment', [
-            'user_id' => $user->id ?? null,
-            'subscription_id' => $request->subscription_id,
-            'company_id' => $company->id ?? null,
-            'reference' => $request->reference,
-            'months' => $request->months ?? 'not provided',
-        ]);
+        // Log::debug('Verifying subscription payment', [
+        //     'user_id' => $user->id ?? null,
+        //     'subscription_id' => $request->subscription_id,
+        //     'company_id' => $company->id ?? null,
+        //     'reference' => $request->reference,
+        //     'months' => $request->months ?? 'not provided',
+        // ]);
 
         if (!$company) {
             Log::debug('User has no company assigned', ['user_id' => $user->id]);
@@ -142,14 +142,14 @@ class SubscriptionPaymentController extends Controller
 
         // Verify payment via Paystack
         $paymentVerification = $this->paystack->verifyPayment($request->reference);
-        Log::debug('Paystack payment verification response', ['payment' => $paymentVerification]);
+        // Log::debug('Paystack payment verification response', ['payment' => $paymentVerification]);
 
         if (
             !$paymentVerification ||
             !isset($paymentVerification['data']['status']) ||
             $paymentVerification['data']['status'] !== 'success'
         ) {
-            Log::debug('Payment verification failed', ['payment' => $paymentVerification]);
+            // Log::debug('Payment verification failed', ['payment' => $paymentVerification]);
             return response()->json([
                 'success' => false,
                 'message' => 'Payment verification failed.'
@@ -172,7 +172,7 @@ class SubscriptionPaymentController extends Controller
             Log::warning('Invalid months value, defaulting to 1', ['original_months' => $request->months ?? 'unknown']);
         }
 
-        Log::debug('Processing subscription for months', ['months' => $months]);
+        // Log::debug('Processing subscription for months', ['months' => $months]);
 
         DB::beginTransaction();
 
@@ -189,11 +189,11 @@ class SubscriptionPaymentController extends Controller
                 'payment_gateway' => 'paystack',
                 'meta' => array_merge($paymentData, ['months_purchased' => $months]),
             ]);
-            Log::debug('Transaction created successfully', [
-                'transaction_id' => $transaction->id,
-                'amount' => $transaction->amount,
-                'months' => $months
-            ]);
+            // Log::debug('Transaction created successfully', [
+            //     'transaction_id' => $transaction->id,
+            //     'amount' => $transaction->amount,
+            //     'months' => $months
+            // ]);
 
             // Calculate start and end dates
             $now = now();
@@ -208,22 +208,22 @@ class SubscriptionPaymentController extends Controller
                 $startDate = Carbon::parse($existingSubscription->end_date);
                 $endDate = (clone $startDate)->addMonths($months);
 
-                Log::debug('Extending existing subscription', [
-                    'current_end_date' => $existingSubscription->end_date,
-                    'new_start_date' => $startDate,
-                    'new_end_date' => $endDate,
-                    'months_added' => $months
-                ]);
+                // Log::debug('Extending existing subscription', [
+                //     'current_end_date' => $existingSubscription->end_date,
+                //     'new_start_date' => $startDate,
+                //     'new_end_date' => $endDate,
+                //     'months_added' => $months
+                // ]);
             } else {
                 // New subscription or expired subscription
                 $startDate = $now;
                 $endDate = (clone $startDate)->addMonths($months);
 
-                Log::debug('Creating new subscription period', [
-                    'start_date' => $startDate,
-                    'end_date' => $endDate,
-                    'months' => $months
-                ]);
+                // Log::debug('Creating new subscription period', [
+                //     'start_date' => $startDate,
+                //     'end_date' => $endDate,
+                //     'months' => $months
+                // ]);
             }
 
             // Create or update company subscription
@@ -241,12 +241,12 @@ class SubscriptionPaymentController extends Controller
                 ]
             );
 
-            Log::debug('Company subscription updated/created', [
-                'company_subscription_id' => $companySubscription->id,
-                'start_date' => $companySubscription->start_date,
-                'end_date' => $companySubscription->end_date,
-                'months_purchased' => $months
-            ]);
+            // Log::debug('Company subscription updated/created', [
+            //     'company_subscription_id' => $companySubscription->id,
+            //     'start_date' => $companySubscription->start_date,
+            //     'end_date' => $companySubscription->end_date,
+            //     'months_purchased' => $months
+            // ]);
 
             // Deactivate any other active subscriptions for this company
             CompanySubscription::where('company_id', $company->id)
