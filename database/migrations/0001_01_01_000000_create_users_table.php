@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('avatar_url')->nullable();
             $table->string('role')->default(UserRole::STAFF);
-            $table->foreignId('company_id')->nullable()->constrained()->nullOnDelete();
+           
             $table->rememberToken();
             $table->softDeletes();
 
