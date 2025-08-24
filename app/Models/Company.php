@@ -61,10 +61,10 @@ class Company extends BaseModel
     public function activeSubscription()
     {
         return $this->hasOne(CompanySubscription::class)
+            ->with('subscription')
             ->where('status', SubscriptionStatus::ACTIVE)
-            ->latest('start_date');
+            ->latestOfMany('start_date'); // Laravel helper for this exact case
     }
-
 
     /**
      * Company has many clock-ins through staff.
