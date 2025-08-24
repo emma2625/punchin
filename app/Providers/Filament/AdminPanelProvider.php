@@ -26,7 +26,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->domain('admin.punchin.test')
+            ->path('admin')
             ->login()
             ->profile(isSimple: false)
             ->favicon(asset('logo.png'))
