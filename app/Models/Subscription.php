@@ -25,7 +25,13 @@ class Subscription extends BaseModel
         'price',
         'duration_days',
         'description',
+        'staff_limit',
+        'features',
         'created_by',
+    ];
+
+    protected $casts = [
+        'features' => 'array', // Laravel will auto-cast JSON
     ];
 
     /**

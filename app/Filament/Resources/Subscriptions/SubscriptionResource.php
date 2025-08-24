@@ -12,6 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
@@ -41,11 +42,21 @@ class SubscriptionResource extends Resource
                     ->required()
                     ->numeric()
                     ->prefix('₦'),
-                TextInput::make('duration_days')
+                TextInput::make('staff_limit')
                     ->required()
                     ->numeric(),
+                // TextInput::make('duration_days')
+                //     ->required()
+                //     ->numeric(),
                 Textarea::make('description')
                     ->columnSpanFull(),
+                Repeater::make('features')
+                    ->schema([
+                        TextInput::make('feature'),
+                    ])
+                    ->columnSpanFull()
+                    ->reorderable()
+                    ->addActionLabel('Add Feature')
             ]);
     }
 
@@ -78,9 +89,7 @@ class SubscriptionResource extends Resource
                 TextColumn::make('price')
                     ->formatStateUsing(fn($state) => '₦' . number_format($state))
                     ->sortable(),
-                TextColumn::make('duration_days')
-                    ->numeric()
-                    ->formatStateUsing(fn($state) => formatDaysToYearsMonthsDays($state))
+                TextColumn::make('staff_limit')
                     ->sortable(),
                 TextColumn::make('creator.full_name')
                     ->label('Created By')
@@ -100,7 +109,7 @@ class SubscriptionResource extends Resource
             ])
             ->recordActions([
                 ActionGroup::make([
-                    ViewAction::make(),
+                    // ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
                 ])->icon('heroicon-o-ellipsis-horizontal-circle'),
@@ -119,5 +128,5 @@ class SubscriptionResource extends Resource
         ];
     }
 
-    
+
 }

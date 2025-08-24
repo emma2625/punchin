@@ -17,6 +17,7 @@ class SubscriptionResource extends JsonResource
         if (is_null($this->resource)) {
             return [];
         }
+
         return [
             'id' => $this->ulid,
             'name' => $this->name,
@@ -24,6 +25,8 @@ class SubscriptionResource extends JsonResource
             'duration_days' => $this->duration_days,
             'duration' => formatDaysToYearsMonthsDays($this->duration_days),
             'description' => $this->description,
+            'staff_limit' => $this->staff_limit,
+            'features' => $this->features ? json_decode($this->features, true) : [],
             'creator' => UserResource::make($this->whenLoaded('creator')),
         ];
     }
