@@ -26,7 +26,7 @@ class SubscriptionResource extends JsonResource
             'duration' => formatDaysToYearsMonthsDays($this->duration_days),
             'description' => $this->description,
             'staff_limit' => $this->staff_limit,
-            'features' => $this->features ? json_decode($this->features, true) : [],
+            'features' => $this->features,
             'creator' => UserResource::make($this->whenLoaded('creator')),
         ];
     }
