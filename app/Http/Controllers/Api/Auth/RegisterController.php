@@ -31,6 +31,13 @@ class RegisterController extends Controller
             // Create user
             $userData = $data['user'];
 
+            $path = null;
+
+            if ($request->hasFile('avatar')) {
+                $file = $request->file('avatar');
+                $path = $file->store('avatars', 'public');
+            }
+
             $user = User::create([
                 'first_name' => $userData['first_name'],
                 'last_name' => $userData['last_name'],
@@ -38,6 +45,7 @@ class RegisterController extends Controller
                 'password' => Hash::make($userData['password']),
                 'company_id' => $company->id,
                 'email_verified_at' => null,
+                'avatar_uri' => $path,
                 'role' => UserRole::ADMIN,
             ]);
 

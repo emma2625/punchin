@@ -20,6 +20,7 @@ class RegisterRequest extends FormRequest
             'company.phone' => 'required|string|min:7|max:20',
 
             // User rules
+            'user.avatar' => 'nullable|image|max:5120',
             'user.first_name' => 'required|string|min:2|max:50',
             'user.last_name' => 'required|string|min:2|max:50',
             'user.email' => 'required|email|unique:users,email',
@@ -43,6 +44,7 @@ class RegisterRequest extends FormRequest
             'user.email.unique' => 'This email is already taken',
             'user.password.required' => 'Password is required',
             'user.password.confirmed' => 'Password confirmation does not match',
+            'user.avatar.max' => 'Avatar must not be greater than 5mb',
         ];
     }
 }
