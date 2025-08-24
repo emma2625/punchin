@@ -33,8 +33,8 @@ class RegisterController extends Controller
 
             $path = null;
 
-            if ($request->hasFile('avatar')) {
-                $file = $request->file('avatar');
+            if ($request->hasFile('user.avatar')) {
+                $file = $request->file('user.avatar');
                 $path = $file->store('avatars', 'public');
             }
 
