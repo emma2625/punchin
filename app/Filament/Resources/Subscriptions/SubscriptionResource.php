@@ -45,9 +45,9 @@ class SubscriptionResource extends Resource
                 TextInput::make('staff_limit')
                     ->required()
                     ->numeric(),
-                // TextInput::make('duration_days')
-                //     ->required()
-                //     ->numeric(),
+                TextInput::make('duration_days')
+                    ->required()
+                    ->numeric(),
                 Textarea::make('description')
                     ->columnSpanFull(),
                 Repeater::make('features')
